@@ -36,9 +36,36 @@ jobs:
           root: ~/project
           paths:
             - "target/release/release-with-bin"
+    
+  upload_artifact:
+    docker:
+      - image: cimg/go
+    steps:
+      - attach_workspace:
+          at: "target/release/release-with-bin"
+      - run:
+          name: "pack artifacts"
+          command: |
+            mkdir -p ./artifacts
+            zip -O ./artifacts/release-with-bin.zip target/release/release-with-bin
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            ghr -t ${GITHUB_PKG_TOKEN} -u ${GITHUB_USR} -r release-with-bin -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./artifacts
+
 
 workflows:
   test_and_build:
     jobs:
       - test_and_build:
           toolchain: 1.58.1
+  
+      - upload_artifact:
+          requires:
+            - test_and_build
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
