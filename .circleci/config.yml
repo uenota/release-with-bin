@@ -1,26 +1,44 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  test_and_build:
+    parameters:
+      toolchain:
+        type: string
+        default: stable
+      run_lint:
+        type: boolean
+        default: true
+      run_fmt:
+        type: boolean
+        default: true
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: cimg/rust:<< parameters.toolchain >>
     steps:
       - checkout
+      - when:
+          condition: << parameters.run_fmt >>
+          steps:
+            - run: rustup component add rustfmt
+            - run: cargo fmt
+      - when:
+          condition: << parameters.run_lint >>
+          steps:
+            - run: rustup component add clippy
+            - run: cargo clippy
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: test
+          command: cargo test --all --release
+      - run:
+          name: build
+          command: cargo build --release
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - "target/release/release-with-bin"
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  test_and_build:
     jobs:
-      - say-hello
+      - test_and_build:
+          toolchain: 1.58.1
