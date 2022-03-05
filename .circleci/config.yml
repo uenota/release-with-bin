@@ -60,7 +60,10 @@ workflows:
     jobs:
       - test_and_build:
           toolchain: 1.58.1
-  
+          filters:
+            tags:
+              only: /^v.*/
+
       - upload_artifact:
           requires:
             - test_and_build
