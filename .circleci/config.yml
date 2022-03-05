@@ -52,7 +52,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
-            ghr -t ${GITHUB_PKG_TOKEN} -u ${GITHUB_USR} -r release-with-bin -c ${CIRCLE_SHA1} -delete ${CIRCLE_TAG} ./artifacts
+            ghr -t ${GITHUB_PKG_TOKEN} -u ${GITHUB_USR} -r release-with-bin -c ${CIRCLE_SHA1} ${CIRCLE_TAG} ./artifacts
 
 
 workflows:
