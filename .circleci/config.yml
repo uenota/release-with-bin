@@ -47,7 +47,7 @@ jobs:
           name: "pack artifacts"
           command: |
             mkdir -p ./artifacts
-            zip -O ./artifacts/release-with-bin.zip target/release/release-with-bin
+            tar -zcvf artifacts/release-with-bin.tar.gz target/release/release-with-bin 
       - run:
           name: "Publish Release on GitHub"
           command: |
