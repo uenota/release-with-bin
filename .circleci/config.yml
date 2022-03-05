@@ -39,7 +39,7 @@ jobs:
     
   upload_artifact:
     docker:
-      - image: cimg/go
+      - image: cimg/go:1.17
     steps:
       - attach_workspace:
           at: "target/release/release-with-bin"
